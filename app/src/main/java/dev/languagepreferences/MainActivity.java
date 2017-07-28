@@ -12,14 +12,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-     ArrayList<String> list;
+
+    SharedPreferences sharedPreferences;
+
+    TextView textView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menuHere) {
@@ -34,19 +39,43 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         super.onOptionsItemSelected(item);
+//
+//        if(item.getItemId() == R.id.english)
+//        {
+//            setLanguage("English");
+//        } else if (item.getItemId() == R.id.spanish)
+//        {
+//            setLanguage("Spanish");
+//        }
+//        return true;
+
 
         switch (item.getItemId())
         {
-            case R.id.settings:
+            case R.id.english:
                 Toast.makeText(this, "Settings selected", Toast.LENGTH_SHORT).show();
+                setLanguage("English");
                 return true;
-            case R.id.help:
+            case R.id.spanish:
                 Toast.makeText(this, "Help selected", Toast.LENGTH_SHORT).show();
+                setLanguage("Spanish");
                 return true;
+
             default:
+
                 return false;
         }
+
+
     }
+
+    public void setLanguage(String language)
+    {
+        sharedPreferences.edit().putString("language", language).apply();
+
+        textView.setText(language);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -54,52 +83,44 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ListView listView = (ListView) findViewById(R.id.listView);
+        sharedPreferences = this.getSharedPreferences("dev.languagepreferences", Context.MODE_PRIVATE);
 
-        list = new ArrayList<>();
+        textView = (TextView) findViewById(R.id.textView);
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
-        listView.setAdapter(arrayAdapter);
+        String language = sharedPreferences.getString("language", "");
 
-        new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_menu_compass)
-                .setTitle("Choose a language")
-                .setMessage("Which languange would you like?")
-                .setPositiveButton("English", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String language = "English";
-                        Toast.makeText(MainActivity.this, language, Toast.LENGTH_SHORT).show();
-                        list.add(language);
-                        arrayAdapter.notifyDataSetChanged();
+        if (language == "") {
 
-                        Log.i("Countries", list.toString());
+            new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_btn_speak_now)
+                    .setTitle("Choose a language")
+                    .setMessage("Which languange would you like?")
+                    .setPositiveButton("English", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
 
-                    }
-                })
-                .setNegativeButton("Spanish", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String language = "Spanish";
-                        Toast.makeText(MainActivity.this, language, Toast.LENGTH_SHORT).show();
-                        list.add(language);
-                        arrayAdapter.notifyDataSetChanged();
-
-                        Log.i("Countries", list.toString());
-
-                    }
-                })
-                .show();
+                            setLanguage("English");
 
 
+                        }
+                    })
+                    .setNegativeButton("Spanish", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
 
+                            setLanguage("Spanish");
 
-
-
-
-        SharedPreferences sharedPreferences = this.getSharedPreferences("dev.languagepreferences", Context.MODE_PRIVATE);
-
+                        }
+                    })
+                    .show();
+        }
+        else
+        {
+            textView.setText(language);
+        }
 
     }
+
+
 
 }
